@@ -1,5 +1,5 @@
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
-const withTM = require('next-transpile-modules')(['monaco-editor'])
+const withTM = require('next-transpile-modules')(['monaco-editor', 'color'])
 const { createLoader } = require('simple-functional-loader')
 const path = require('path')
 const fs = require('fs')
