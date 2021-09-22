@@ -3,7 +3,11 @@ const path = require('path')
 const fs = require('fs').promises
 const { PLUGIN_BUILDER_VERSION } = require('../constants')
 
-const tailwindVersions = { v1: 'tailwindcss-v1', v2: 'tailwindcss' }
+const tailwindVersions = {
+  v1: 'tailwindcss-v1',
+  v2: 'tailwindcss',
+  v3: 'tailwindcss-v3',
+}
 const plugins = [
   '@tailwindcss/custom-forms',
   '@tailwindcss/forms',

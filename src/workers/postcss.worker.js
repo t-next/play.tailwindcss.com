@@ -6,6 +6,7 @@ import {
   doHover,
   getDocumentColors,
   completionsFromClassList,
+  getColor,
 } from 'tailwindcss-language-service'
 import {
   asCompletionResult as asMonacoCompletionResult,
@@ -145,16 +146,24 @@ addEventListener('message', async (event) => {
           import('postcss'),
           import('postcss-selector-parser'),
           result.state.jit
-            ? import('tailwindcss/lib/jit/lib/generateRules')
+            ? tailwindVersion === '2'
+              ? import('tailwindcss/lib/jit/lib/generateRules')
+              : import('tailwindcss-v3/lib/lib/generateRules')
             : {},
           result.state.jit
-            ? import('tailwindcss/lib/jit/lib/setupContextUtils')
+            ? tailwindVersion === '2'
+              ? import('tailwindcss/lib/jit/lib/setupContextUtils')
+              : import('tailwindcss-v3/lib/lib/setupContextUtils')
             : {},
           result.state.jit
-            ? import('tailwindcss/lib/jit/lib/expandApplyAtRules')
+            ? tailwindVersion === '2'
+              ? import('tailwindcss/lib/jit/lib/expandApplyAtRules')
+              : import('tailwindcss-v3/lib/lib/expandApplyAtRules')
             : {},
           tailwindVersion === '2'
             ? import('tailwindcss/resolveConfig')
+            : tailwindVersion === '3'
+            ? import('tailwindcss-v3/resolveConfig')
             : import('tailwindcss-v1/resolveConfig'),
           result.state.jit
             ? import('tailwindcss/lib/jit/lib/setupTrackingContext')
@@ -182,6 +191,12 @@ addEventListener('message', async (event) => {
         state.config = resolveConfig(config)
         if (result.state.jit) {
           state.jitContext = createContext(state.config)
+          if (state.jitContext.completions) {
+            state.coreUtilities = state.jitContext.completions().map((item) => {
+              let className = Array.isArray(item) ? item[0] : item
+              return [className, { color: getColor(state, className) }]
+            })
+          }
         }
       }
       state.variants = getVariants(state)

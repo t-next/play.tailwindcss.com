@@ -54,6 +54,14 @@ const files = [
       'node_modules/tailwindcss/lib/plugins/css/preflight.css'
     ),
   },
+  {
+    pattern: /preflight/,
+    tailwindVersion: 3,
+    file: path.resolve(
+      __dirname,
+      'node_modules/tailwindcss-v3/lib/css/preflight.css'
+    ),
+  },
 ]
 
 function createReadFileReplaceLoader(tailwindVersion) {
@@ -154,6 +162,11 @@ module.exports = withTM({
     config.module.rules.push({
       test: /tailwindcss\/lib\/plugins\/preflight\.js/,
       use: [createReadFileReplaceLoader(2)],
+    })
+
+    config.module.rules.push({
+      test: /tailwindcss-v3\/lib\/corePlugins\.js/,
+      use: [createReadFileReplaceLoader(3)],
     })
 
     config.plugins.push(

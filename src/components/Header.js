@@ -1,7 +1,9 @@
 import { Logo } from './Logo'
 import clsx from 'clsx'
 import { toggleTheme } from '../utils/theme'
+import { version as tailwind1Version } from 'tailwindcss-v1/package.json?version'
 import { version as tailwind2Version } from 'tailwindcss/package.json?version'
+import { version as tailwind3Version } from 'tailwindcss-v3/package.json?version'
 
 export function Header({
   layout,
@@ -27,10 +29,13 @@ export function Header({
             onChange={(e) => onChangeTailwindVersion(e.target.value)}
           >
             <option value="1" className="text-initial">
-              v1.9.6
+              v{tailwind1Version}
             </option>
             <option value="2" className="text-initial">
               v{tailwind2Version}
+            </option>
+            <option value="3" className="text-initial">
+              v{tailwind3Version}
             </option>
           </select>
           <svg
