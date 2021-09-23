@@ -155,7 +155,7 @@ export async function processCss(
 
   let state
 
-  if (lspRoot || tailwindVersion === '3') {
+  if (lspRoot) {
     state = {}
     state.jit = jit
     if (lspRoot) {
