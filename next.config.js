@@ -205,6 +205,72 @@ module.exports = withTM({
       ],
     })
 
+    let browsers = require('browserslist')([
+      '> 1%',
+      'not edge <= 18',
+      'not ie 11',
+      'not op_mini all',
+    ])
+
+    config.module.rules.push({
+      test: require.resolve('browserslist'),
+      use: [
+        createLoader(function (_source) {
+          return `
+            module.exports = () => (${JSON.stringify(browsers)})
+          `
+        }),
+      ],
+    })
+
+    config.module.rules.push({
+      test: require.resolve('caniuse-lite/dist/unpacker/index.js'),
+      use: [
+        createLoader(function (_source) {
+          let agents = require('caniuse-lite/dist/unpacker/agents.js').agents
+
+          for (let name in agents) {
+            for (let key in agents[name]) {
+              if (key !== 'prefix' && key !== 'prefix_exceptions') {
+                delete agents[name][key]
+              }
+            }
+          }
+
+          let features = require('caniuse-lite').feature(
+            require('caniuse-lite/data/features/css-featurequeries.js')
+          )
+
+          return `
+            export const agents = ${JSON.stringify(agents)}
+            export function feature() {
+              return ${JSON.stringify(features)}
+            }
+          `
+        }),
+      ],
+    })
+
+    config.module.rules.push({
+      test: require.resolve('autoprefixer/data/prefixes.js'),
+      use: [
+        createLoader(function (_source) {
+          let result = require('autoprefixer/data/prefixes.js')
+
+          for (let key in result) {
+            result[key].browsers = result[key].browsers.filter((b) =>
+              browsers.includes(b)
+            )
+            if (result[key].browsers.length === 0) {
+              delete result[key]
+            }
+          }
+
+          return `module.exports = ${JSON.stringify(result)}`
+        }),
+      ],
+    })
+
     config.output.globalObject = 'self'
 
     return config
