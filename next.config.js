@@ -183,6 +183,43 @@ module.exports = withTM({
       }),
     })
 
+    // TODO: remove
+    config.module.rules.push({
+      test: require.resolve('tailwindcss-v3/lib/lib/setupContextUtils.js'),
+      use: createLoader(function (source) {
+        return source.replace(
+          /}\s+function createContext/,
+          (match) => `
+            context.completions = function () {
+              let output = []
+
+              for (let util of classList) {
+                if (Array.isArray(util)) {
+                  let [utilName, options] = util
+                  let isColor = [].concat(options.type).includes('color')
+
+                  if (isColor) {
+                    for (let [value, color] of Object.entries(options ? options.values : {})) {
+                      output.push([(0, _nameClass.formatClass)(utilName, value), { color }])
+                    }
+                  } else {
+                    for (let value of Object.keys(options ? options.values : {})) {
+                      output.push((0, _nameClass.formatClass)(utilName, value))
+                    }
+                  }
+                } else {
+                  output.push(util)
+                }
+              }
+
+              return output
+            }
+            ${match}
+          `
+        )
+      }),
+    })
+
     // mock `fileURLToPath` and `pathToFileURL` functions
     // from the `url` module
     config.module.rules.push({
