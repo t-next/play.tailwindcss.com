@@ -1,13 +1,20 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { SuggestAdapter } from 'monaco-editor/esm/vs/language/typescript/languageFeatures'
-import types from '!!raw-loader!../monaco/types.d.ts'
-import typesV2 from '!!raw-loader!../monaco/types-v2.d.ts'
+import types1 from '!!raw-loader!../monaco/types.d.ts'
+import types2 from '!!raw-loader!../monaco/types-v2.d.ts'
+import types3 from '!!raw-loader!../monaco/types-v3.d.ts'
 import postcssTypes from '!!raw-loader!string-replace-loader?search=\\/\\*.*?\\*\\/&replace=&flags=sg!postcss/lib/postcss.d.ts'
 import sourcemapTypes from '!!raw-loader!postcss/node_modules/source-map/source-map.d.ts'
 import { DiagnosticsAdapter } from 'monaco-editor/esm/vs/language/typescript/languageFeatures'
 
 const CONFIG_URI = 'file:///Config'
 const CONFIG_PROXY_URI = 'file:///Config.proxy'
+
+const types = {
+  1: types1,
+  2: types2,
+  3: types3,
+}
 
 export function setupJavaScriptMode(
   content,
@@ -98,7 +105,7 @@ export function setupJavaScriptMode(
 
         disposables.push(
           monaco.languages.typescript.javascriptDefaults.addExtraLib(
-            tailwindVersion === '1' ? types : typesV2,
+            types[tailwindVersion],
             'file:///node_modules/@types/tailwindcss/index.d.ts'
           )
         )
@@ -190,7 +197,7 @@ export function setupJavaScriptMode(
       if (model) {
         disposables.push(
           monaco.languages.typescript.javascriptDefaults.addExtraLib(
-            tailwindVersion === '1' ? types : typesV2,
+            types[tailwindVersion],
             'file:///node_modules/@types/tailwindcss/index.d.ts'
           )
         )
