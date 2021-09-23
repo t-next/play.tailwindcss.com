@@ -52,7 +52,11 @@ export async function processCss(
     (tailwindVersion === '2' && config.mode === 'jit') ||
     tailwindVersion === '3'
   ) {
-    config.purge = [VIRTUAL_HTML_FILENAME]
+    if (tailwindVersion === '3') {
+      config.content = [VIRTUAL_HTML_FILENAME]
+    } else {
+      config.purge = [VIRTUAL_HTML_FILENAME]
+    }
     jit = true
   } else {
     config.separator = `__TWSEP__${separator}__TWSEP__`
