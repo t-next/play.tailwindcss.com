@@ -1,5 +1,11 @@
 import { PLUGIN_BUILDER_VERSION } from '../constants'
-import colors from 'tailwindcss/colors'
+import colors2 from 'tailwindcss/colors'
+import colors3 from 'tailwindcss-v3/colors'
+
+let colors = {
+  2: colors2,
+  3: colors3,
+}
 
 export async function parseConfig(configStr, tailwindVersion) {
   let mod = {}
@@ -43,8 +49,12 @@ export async function parseConfig(configStr, tailwindVersion) {
       if (m === '') {
         throw new RequireError("The argument 'id' must be a non-empty string. Received ''", line)
       }
-      if (m === 'tailwindcss/colors') {
-        return ${JSON.stringify(colors)}
+      if (/^tailwindcss\\/colors(\\.js)?$/.test(m)) {
+        ${
+          colors[tailwindVersion]
+            ? `return ${JSON.stringify(colors[tailwindVersion])}`
+            : `throw new RequireError("Cannot find module '" + m + "'", line)`
+        }
       }
       let result
       try {
