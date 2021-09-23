@@ -161,10 +161,11 @@ function Pen({
           css: content.css,
           config: content.config,
           skipIntelliSense: document === 'html',
+          tailwindVersion,
         })
       }
     },
-    [inject, compile, jit]
+    [inject, compile, jit, tailwindVersion]
   )
 
   useEffect(() => {
