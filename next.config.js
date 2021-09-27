@@ -199,11 +199,11 @@ module.exports = withTM({
                   let isColor = [].concat(options.type).includes('color')
 
                   if (isColor) {
-                    for (let [value, color] of Object.entries(options ? options.values : {})) {
+                    for (let [value, color] of Object.entries(options && options.values ? options.values : {})) {
                       output.push([(0, _nameClass.formatClass)(utilName, value), { color }])
                     }
                   } else {
-                    for (let value of Object.keys(options ? options.values : {})) {
+                    for (let value of Object.keys(options && options.values ? options.values : {})) {
                       output.push((0, _nameClass.formatClass)(utilName, value))
                     }
                   }
