@@ -3,7 +3,8 @@ import clsx from 'clsx'
 import { toggleTheme } from '../utils/theme'
 import { version as tailwind1Version } from 'tailwindcss-v1/package.json?version'
 import { version as tailwind2Version } from 'tailwindcss/package.json?version'
-import { version as tailwind3Version } from 'tailwindcss-v3/package.json?version'
+// import { version as tailwind3Version } from 'tailwindcss-v3/package.json?version'
+const tailwind3Version = '3.0.0-alpha'
 
 export function Header({
   layout,
