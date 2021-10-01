@@ -1,4 +1,3 @@
-import autoprefixer from 'autoprefixer'
 import { klona } from 'klona/full'
 import { VIRTUAL_SOURCE_PATH, VIRTUAL_HTML_FILENAME } from '../constants'
 import extractClasses from './extractClasses'
@@ -7,17 +6,20 @@ const deps = {
   1: [
     () => import('tailwindcss-v1'),
     () => import('postcss-v7'),
+    () => import('autoprefixer-postcss7'),
     () => import('tailwindcss-v1/lib/featureFlags'),
   ],
   2: [
     () => import('tailwindcss'),
     () => import('postcss'),
+    () => import('autoprefixer'),
     () => import('tailwindcss/lib/featureFlags'),
     () => import('tailwindcss/resolveConfig'),
   ],
   3: [
     () => import('tailwindcss-v3'),
     () => import('postcss'),
+    () => import('autoprefixer'),
     () => import('tailwindcss-v3/lib/featureFlags'),
     () => import('tailwindcss-v3/resolveConfig'),
   ],
@@ -38,7 +40,7 @@ export async function processCss(
 ) {
   let jit = false
   const config = klona(configInput)
-  const [tailwindcss, postcss, featureFlags, resolveConfig] = (
+  const [tailwindcss, postcss, autoprefixer, featureFlags, resolveConfig] = (
     await Promise.all(deps[tailwindVersion].map((x) => x()))
   ).map((x) => x.default || x)
 
