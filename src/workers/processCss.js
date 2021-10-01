@@ -171,7 +171,7 @@ export async function processCss(
         ? require('tailwindcss-v1/package.json?version').version
         : tailwindVersion === '2'
         ? require('tailwindcss/package.json?version').version
-        : '3.0.0-alpha' // require('tailwindcss-v3/package.json?version').version
+        : require('tailwindcss-v3/package.json?version').version
     state.editor = {
       userLanguages: {},
       capabilities: {},
