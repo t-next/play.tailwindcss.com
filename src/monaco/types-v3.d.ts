@@ -26,15 +26,14 @@ type BaseConfig = {
   separator: string;
 };
 
-type PurgeConfig =
-  /** Disabled */
-  | false
-  /** Shortcut, list of content paths */
+type ContentConfig =
   | string[]
-  /** Explicit enabled/disabled + content paths */
-  | { enabled: boolean; mode: "all" | "conservative"; content: string[] }
-  /** Explicit enabled/disabled + purge options */
-  | { enabled: boolean; options: { content: string[]; whitelist: string[] } };
+  | {
+    files: string[];
+    safelist?: Array<string | { pattern: RegExp, variants?: string[] }>;
+    transform?: Record<string, (content: string) => string>;
+    extract?: Record<string, (content: string) => string[]>;
+  };
 
 type FutureConfig = "all" | Record<any, never> | [];
 
@@ -114,6 +113,7 @@ type ThemeConfig = Partial<{
   width: ThemeConfig["spacing"];
   minWidth: ResolvableTo<KeyValuePair>;
   maxWidth: ResolvableTo<KeyValuePair>;
+  aspectRatio: ResolvableTo<KeyValuePair>;
 
   /** Positioning */
   inset: ResolvableTo<KeyValuePair>;
@@ -124,6 +124,7 @@ type ThemeConfig = Partial<{
   lineHeight: ResolvableTo<KeyValuePair>;
   textColor: ThemeConfig["colors"];
   textOpacity: ThemeConfig["opacity"];
+  textIndent: ThemeConfig["spacing"];
 
   /** Input */
   placeholderColor: ThemeConfig["colors"];
@@ -139,6 +140,7 @@ type ThemeConfig = Partial<{
   space: ThemeConfig["spacing"];
   opacity: ResolvableTo<KeyValuePair>;
   order: ResolvableTo<KeyValuePair>;
+  columns: ResolvableTo<KeyValuePair>;
 
   /** Images */
   objectPosition: ResolvableTo<KeyValuePair>;
@@ -166,6 +168,7 @@ type ThemeConfig = Partial<{
   transitionTimingFunction: ResolvableTo<KeyValuePair>;
   transitionDuration: ResolvableTo<KeyValuePair>;
   transitionDelay: ResolvableTo<KeyValuePair>;
+  willChange: ResolvableTo<KeyValuePair>;
 
   /** Animations */
   animation: ResolvableTo<KeyValuePair>;
@@ -230,6 +233,7 @@ type VariantConfig =
       respectPrefix: false;
       respectImportant: false;
     }>;
+type ValueType = 'any' | 'color' | 'url' | 'image' | 'length' | 'percentage' | 'position' | 'lookup' | 'generic-name' | 'family-name' | 'number' | 'line-width' | 'absolute-size' | 'relative-size';
 type PluginAPI = {
   /** Get access to the whole config */
   config: <TDefaultValue = TailwindConfig>(
@@ -240,10 +244,6 @@ type PluginAPI = {
   e: (className: string) => string;
   /** Shortcut for the theme section of the config */
   theme: <TDefaultValue>(
-    path: ConfigDotNotationPath,
-    defaultValue: TDefaultValue
-  ) => TDefaultValue; // TODO: Or return value at path
-  variants: <TDefaultValue>(
     path: ConfigDotNotationPath,
     defaultValue: TDefaultValue
   ) => TDefaultValue; // TODO: Or return value at path
@@ -277,6 +277,16 @@ type PluginAPI = {
       ) => void
     }) => void
   ) => void;
+  matchUtilities: <T>(
+    utilities: Record<string, (value: T) => Record>,
+    options?: Partial<{
+      values: Record<string, T>,
+      type: ValueType | Array<ValueType>,
+      respectPrefix: boolean,
+      respectImportant: boolean,
+      respectVariants: boolean,
+    }>
+  ) => void;
   corePlugins: (path: string) => boolean;
   postcss: typeof postcss;
 };
@@ -289,13 +299,11 @@ export type TailwindConfig = Partial<
     presets: TailwindConfig[];
     future: FutureConfig;
     experimental: ExperimentalConfig;
-    purge: PurgeConfig;
+    content: ContentConfig;
     darkMode: DarkModeConfig;
     theme: ThemeConfig;
-    variants: VariantsConfig;
     corePlugins: CorePluginsConfig;
     plugins: PluginsConfig;
-    mode: 'jit' | 'aot';
     /** Custom */
     [key: string]: any;
   }
