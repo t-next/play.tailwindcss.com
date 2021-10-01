@@ -191,8 +191,8 @@ addEventListener('message', async (event) => {
         state.config = resolveConfig(config)
         if (result.state.jit) {
           state.jitContext = createContext(state.config)
-          if (state.jitContext.completions) {
-            state.coreUtilities = state.jitContext.completions().map((item) => {
+          if (state.jitContext.getClassList) {
+            state.classList = state.jitContext.getClassList().map((item) => {
               let className = Array.isArray(item) ? item[0] : item
               return [className, { color: getColor(state, className) }]
             })
