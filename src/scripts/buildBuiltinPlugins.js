@@ -3,22 +3,40 @@ const path = require('path')
 const fs = require('fs').promises
 const { PLUGIN_BUILDER_VERSION } = require('../constants')
 
-const tailwindVersions = {
-  v1: 'tailwindcss-v1',
-  v2: 'tailwindcss',
-  v3: 'tailwindcss-v3',
+const versions = {
+  v1: {
+    tailwindcss: 'tailwindcss-v1',
+    plugins: [
+      '@tailwindcss/custom-forms',
+      '@tailwindcss/forms',
+      '@tailwindcss/typography',
+      '@tailwindcss/ui',
+    ],
+  },
+  v2: {
+    tailwindcss: 'tailwindcss',
+    plugins: [
+      '@tailwindcss/custom-forms',
+      '@tailwindcss/forms',
+      '@tailwindcss/typography',
+      '@tailwindcss/ui',
+    ],
+  },
+  v3: {
+    tailwindcss: 'tailwindcss-v3',
+    plugins: [
+      '@tailwindcss/custom-forms',
+      '@tailwindcss/forms-next',
+      '@tailwindcss/typography-next',
+      '@tailwindcss/ui',
+    ],
+  },
 }
-const plugins = [
-  '@tailwindcss/custom-forms',
-  '@tailwindcss/forms',
-  '@tailwindcss/typography',
-  '@tailwindcss/ui',
-]
 
-Object.keys(tailwindVersions).forEach((tailwindVersion) => {
-  const tailwindModule = tailwindVersions[tailwindVersion]
+Object.keys(versions).forEach((tailwindVersion) => {
+  const tailwindModule = versions[tailwindVersion].tailwindcss
 
-  plugins.forEach(async (plugin) => {
+  versions[tailwindVersion].plugins.forEach(async (plugin) => {
     const pkg = require(`${plugin}/package.json`)
 
     const output = await build({
@@ -88,7 +106,7 @@ Object.keys(tailwindVersions).forEach((tailwindVersion) => {
         '../../public/plugins',
         PLUGIN_BUILDER_VERSION,
         tailwindVersion,
-        `${plugin}@${pkg.version}.js`
+        `${pkg.name}@${pkg.version}.js`
       ),
       'var require = () => ({ deprecate: _ => _ });' + code,
       'utf8'

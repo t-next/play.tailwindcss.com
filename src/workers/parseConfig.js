@@ -41,6 +41,12 @@ export async function parseConfig(configStr, tailwindVersion) {
     '@tailwindcss/ui': require('@tailwindcss/ui/package.json?version').version,
   }
 
+  // TODO
+  if (tailwindVersion === '3') {
+    builtinPlugins['@tailwindcss/forms'] = '0.4.0-alpha.1'
+    builtinPlugins['@tailwindcss/typography'] = '0.5.0-alpha.1'
+  }
+
   const before = `(async function(module){
     const require = async (m, line, builtinPlugins) => {
       if (typeof m !== 'string') {
