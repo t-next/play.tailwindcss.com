@@ -31,6 +31,10 @@ const compileWorker = createWorkerQueue(CompileWorker)
 
 let state
 
+let lastHtml
+let lastCss
+let lastConfig
+
 addEventListener('message', async (event) => {
   if (event.data.lsp) {
     let result
@@ -127,7 +131,21 @@ addEventListener('message', async (event) => {
       typeof event.data.html !== 'undefined') ||
     event.data._recompile
   ) {
-    const result = await compileWorker.emit(event.data)
+    const html = event.data._recompile ? lastHtml : event.data.html
+    const css = event.data._recompile ? lastCss : event.data.css
+    const config = event.data._recompile ? lastConfig : event.data.config
+
+    lastHtml = html
+    lastCss = css
+    lastConfig = config
+
+    const result = await compileWorker.emit({
+      ...event.data,
+      _isNewBuild: css !== lastCss || config !== lastConfig,
+      html,
+      css,
+      config,
+    })
 
     if (!result.error && !result.canceled) {
       if ('buildId' in result) {
@@ -187,8 +205,7 @@ addEventListener('message', async (event) => {
               }
             : {}),
         }
-        let config = await parseConfig(event.data.config, tailwindVersion)
-        state.config = resolveConfig(config)
+        state.config = resolveConfig(await parseConfig(config, tailwindVersion))
         if (result.state.jit) {
           state.jitContext = createContext(state.config)
           if (state.jitContext.getClassList) {

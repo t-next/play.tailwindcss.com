@@ -6,9 +6,6 @@ self.BUILD_ID = 0
 
 let current
 
-let lastHtml
-let lastCss
-let lastConfig
 let tailwindVersion = '2'
 
 addEventListener('message', async (event) => {
@@ -17,22 +14,18 @@ addEventListener('message', async (event) => {
     return
   }
 
-  const html = event.data._recompile ? lastHtml : event.data.html
-  const css = event.data._recompile ? lastCss : event.data.css
-  const config = event.data._recompile ? lastConfig : event.data.config
+  const html = event.data.html
+  const css = event.data.css
+  const config = event.data.config
   if ('tailwindVersion' in event.data) {
     tailwindVersion = toValidTailwindVersion(event.data.tailwindVersion)
   }
 
-  if (css !== lastCss || config !== lastConfig) {
+  if (event.data._isNewBuild) {
     self.BUILD_ID++
   }
 
   let buildId = self.BUILD_ID
-
-  lastHtml = html
-  lastCss = css
-  lastConfig = config
 
   function respond(data) {
     setTimeout(() => {
