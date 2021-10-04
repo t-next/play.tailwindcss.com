@@ -1,9 +1,9 @@
 import { Logo } from './Logo'
 import clsx from 'clsx'
 import { toggleTheme } from '../utils/theme'
-import { version as tailwind1Version } from 'tailwindcss-v1/package.json?version'
-import { version as tailwind2Version } from 'tailwindcss/package.json?version'
-import { version as tailwind3Version } from 'tailwindcss-v3/package.json?version'
+import { version as tailwind1Version } from 'tailwindcss-v1/package.json?fields=version'
+import { version as tailwind2Version } from 'tailwindcss/package.json?fields=version'
+import { version as tailwind3Version } from 'tailwindcss-v3/package.json?fields=version'
 
 export function Header({
   layout,

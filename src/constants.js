@@ -1,5 +1,21 @@
+let plugins = {
+  '@tailwindcss/custom-forms': require('@tailwindcss/custom-forms/package.json?fields=version,main'),
+  '@tailwindcss/forms': require('@tailwindcss/forms/package.json?fields=version,main'),
+  '@tailwindcss/typography': require('@tailwindcss/typography/package.json?fields=version,main'),
+  '@tailwindcss/ui': require('@tailwindcss/ui/package.json?fields=version,main'),
+}
+
 module.exports = {
-  PLUGIN_BUILDER_VERSION: '3',
+  PLUGIN_BUILDER_VERSION: '4',
   VIRTUAL_SOURCE_PATH: '/sourcePath',
   VIRTUAL_HTML_FILENAME: '/htmlInput',
+  PLUGINS: {
+    1: plugins,
+    2: plugins,
+    3: {
+      ...plugins,
+      '@tailwindcss/forms': require('@tailwindcss/forms-next/package.json?fields=version,main'),
+      '@tailwindcss/typography': require('@tailwindcss/typography-next/package.json?fields=version,main'),
+    },
+  },
 }

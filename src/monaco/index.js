@@ -19,7 +19,9 @@ export function createMonacoEditor({
   let shouldTriggerOnChange = true
 
   window.MonacoEnvironment.getWorkerUrl = (_moduleId, label) => {
-    const v = `?v=${require('monaco-editor/package.json?version').version}`
+    const v = `?v=${
+      require('monaco-editor/package.json?fields=version').version
+    }`
     if (label === 'css' || label === 'tailwindcss')
       return `_next/static/chunks/css.worker.js${v}`
     if (label === 'html') return `_next/static/chunks/html.worker.js${v}`

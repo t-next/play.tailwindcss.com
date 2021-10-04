@@ -99,7 +99,7 @@ module.exports = withTM({
       },
     ]
   },
-  webpack: (config, { isServer, webpack }) => {
+  webpack: (config, { isServer, webpack, dev }) => {
     config.resolve.alias = { ...config.resolve.alias, ...moduleOverrides }
 
     config.module.rules
@@ -177,9 +177,26 @@ module.exports = withTM({
     )
 
     config.module.rules.push({
-      resourceQuery: /version/,
+      resourceQuery: /fields/,
       use: createLoader(function (source) {
-        return `{ "version": "${JSON.parse(source).version}" }`
+        let fields = new URLSearchParams(this.resourceQuery)
+          .get('fields')
+          .split(',')
+
+        let res = JSON.stringify(JSON.parse(source), (key, value) => {
+          if (['', ...fields].includes(key)) {
+            if (key === 'main') {
+              return path.relative(
+                path.resolve(__dirname, 'node_modules'),
+                path.resolve(path.dirname(this.resourcePath), value)
+              )
+            }
+            return value
+          }
+          return undefined
+        })
+
+        return res
       }),
     })
 
@@ -272,6 +289,17 @@ module.exports = withTM({
     })
 
     config.output.globalObject = 'self'
+
+    if (!dev && isServer) {
+      let originalEntry = config.entry
+
+      config.entry = async () => {
+        const entries = { ...(await originalEntry()) }
+        entries['./scripts/buildBuiltInPlugins'] =
+          './src/scripts/buildBuiltInPlugins.js'
+        return entries
+      }
+    }
 
     return config
   },
