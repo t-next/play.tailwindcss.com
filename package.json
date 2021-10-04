@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build:plugins": "node ./.next/server/scripts/buildBuiltInPlugins.js",
+    "build:plugins": "node ./.next/server/scripts/buildBuiltinPlugins.js",
     "build": "next build && npm run build:plugins",
     "start": "next start"
   },

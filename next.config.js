@@ -295,8 +295,8 @@ module.exports = withTM({
 
       config.entry = async () => {
         const entries = { ...(await originalEntry()) }
-        entries['./scripts/buildBuiltInPlugins'] =
-          './src/scripts/buildBuiltInPlugins.js'
+        entries['./scripts/buildBuiltinPlugins'] =
+          './src/scripts/buildBuiltinPlugins.js'
         return entries
       }
     }
