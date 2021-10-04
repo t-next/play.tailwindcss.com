@@ -1,4 +1,4 @@
-import { PLUGIN_BUILDER_VERSION } from '../constants'
+import { PLUGINS, PLUGIN_BUILDER_VERSION } from '../constants'
 import colors2 from 'tailwindcss/colors'
 import colors3 from 'tailwindcss-v3/colors'
 
@@ -32,19 +32,7 @@ export async function parseConfig(configStr, tailwindVersion) {
   const builtinPlugins = {
     _builderVersion: PLUGIN_BUILDER_VERSION,
     _tailwindVersion: tailwindVersion,
-    '@tailwindcss/custom-forms': require('@tailwindcss/custom-forms/package.json?version')
-      .version,
-    '@tailwindcss/forms': require('@tailwindcss/forms/package.json?version')
-      .version,
-    '@tailwindcss/typography': require('@tailwindcss/typography/package.json?version')
-      .version,
-    '@tailwindcss/ui': require('@tailwindcss/ui/package.json?version').version,
-  }
-
-  // TODO
-  if (tailwindVersion === '3') {
-    builtinPlugins['@tailwindcss/forms'] = '0.4.0-alpha.1'
-    builtinPlugins['@tailwindcss/typography'] = '0.5.0-alpha.1'
+    ...PLUGINS[tailwindVersion],
   }
 
   const before = `(async function(module){
@@ -65,7 +53,7 @@ export async function parseConfig(configStr, tailwindVersion) {
       let result
       try {
         const href = builtinPlugins[m]
-          ? '/plugins/' + builtinPlugins._builderVersion + '/v' + builtinPlugins._tailwindVersion + '/' + m + '@' + builtinPlugins[m] + '.js'
+          ? '/plugins/' + builtinPlugins._builderVersion + '/v' + builtinPlugins._tailwindVersion + '/' + m + '@' + builtinPlugins[m].version + '.js'
           : 'https://cdn.skypack.dev/' + m + '?min'
         result = await self.importShim(href)
       } catch (error) {

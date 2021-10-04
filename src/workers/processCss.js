@@ -170,10 +170,10 @@ export async function processCss(
     state.separator = separator
     state.version =
       tailwindVersion === '1'
-        ? require('tailwindcss-v1/package.json?version').version
+        ? require('tailwindcss-v1/package.json?fields=version').version
         : tailwindVersion === '2'
-        ? require('tailwindcss/package.json?version').version
-        : require('tailwindcss-v3/package.json?version').version
+        ? require('tailwindcss/package.json?fields=version').version
+        : require('tailwindcss-v3/package.json?fields=version').version
     state.editor = {
       userLanguages: {},
       capabilities: {},
