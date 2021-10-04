@@ -209,10 +209,11 @@ addEventListener('message', async (event) => {
         if (result.state.jit) {
           state.jitContext = createContext(state.config)
           if (state.jitContext.getClassList) {
-            state.classList = state.jitContext.getClassList().map((item) => {
-              let className = Array.isArray(item) ? item[0] : item
-              return [className, { color: getColor(state, className) }]
-            })
+            state.classList = state.jitContext
+              .getClassList()
+              .map((className) => {
+                return [className, { color: getColor(state, className) }]
+              })
           }
         }
       }
