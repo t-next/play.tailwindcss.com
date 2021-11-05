@@ -85,7 +85,6 @@ function createReadFileReplaceLoader(tailwindVersion) {
 }
 
 module.exports = {
-  swcMinify: true,
   async headers() {
     return [
       {
