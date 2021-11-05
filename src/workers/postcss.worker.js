@@ -19,7 +19,7 @@ import {
   asCompletionItem as asLspCompletionItem,
   asRange as asLspRange,
 } from '../monaco/monacoToLsp'
-import CompileWorker from 'worker-loader?publicPath=/_next/&filename=static/chunks/[name].[hash].js&chunkFilename=static/chunks/[id].[contenthash].worker.js!./compile.worker.js'
+import CompileWorker from 'worker-loader!./compile.worker.js'
 import { createWorkerQueue } from '../utils/workers'
 import './subworkers'
 import { getVariants } from '../utils/getVariants'

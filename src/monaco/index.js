@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import PrettierWorker from 'worker-loader?publicPath=/_next/&filename=static/chunks/[name].[hash].js&chunkFilename=static/chunks/[id].[contenthash].worker.js!../workers/prettier.worker.js'
+import PrettierWorker from 'worker-loader!../workers/prettier.worker.js'
 import { createWorkerQueue } from '../utils/workers'
 import { setupHtmlMode } from './html'
 import { setupCssMode } from './css'

@@ -1,12 +1,10 @@
-// @preval
-const postcss = require('postcss')
-const tailwindcss = require('tailwindcss')
-const autoprefixer = require('autoprefixer')
-const cssnano = require('cssnano')
-const { loopWhile } = require('deasync')
-const colors = require('tailwindcss/colors')
+import postcss from 'postcss'
+import tailwindcss from 'tailwindcss'
+import colors from 'tailwindcss/colors'
+import autoprefixer from 'autoprefixer'
+import cssnano from 'cssnano'
 
-module.exports = () => {
+export async function getDefaultContent() {
   const html = `<!--
   Welcome to Tailwind Play, the official Tailwind CSS playground!
 
@@ -90,9 +88,7 @@ module.exports = {
   plugins: [],
 }\n`
 
-  let compiledCss
-
-  postcss([
+  let { css: compiledCss } = await postcss([
     tailwindcss({
       purge: {
         enabled: true,
@@ -111,15 +107,9 @@ module.exports = {
     }),
     autoprefixer(),
     cssnano(),
-  ])
-    .process(css, {
-      from: undefined,
-    })
-    .then((result) => {
-      compiledCss = result.css
-    })
-
-  loopWhile(() => !compiledCss)
+  ]).process(css, {
+    from: undefined,
+  })
 
   return {
     html,

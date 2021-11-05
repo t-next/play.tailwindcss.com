@@ -3,8 +3,8 @@ import { SuggestAdapter } from 'monaco-editor/esm/vs/language/typescript/languag
 import types1 from '!!raw-loader!../monaco/types.d.ts'
 import types2 from '!!raw-loader!../monaco/types-v2.d.ts'
 import types3 from '!!raw-loader!../monaco/types-v3.d.ts'
-import postcssTypes from '!!raw-loader!string-replace-loader?search=\\/\\*.*?\\*\\/&replace=&flags=sg!postcss/lib/postcss.d.ts'
-import sourcemapTypes from '!!raw-loader!postcss/node_modules/source-map/source-map.d.ts'
+import postcssTypes from '!!raw-loader!string-replace-loader?search=\\/\\*.*?\\*\\/&replace=&flags=sg!../../node_modules/postcss/lib/postcss.d.ts'
+import sourcemapTypes from '!!raw-loader!source-map-js/source-map.d.ts'
 import { DiagnosticsAdapter } from 'monaco-editor/esm/vs/language/typescript/languageFeatures'
 
 const CONFIG_URI = 'file:///Config'
@@ -92,7 +92,7 @@ export function setupJavaScriptMode(
         disposables.push(
           monaco.languages.typescript.javascriptDefaults.addExtraLib(
             sourcemapTypes,
-            'file:///node_modules/@types/source-map/index.d.ts'
+            'file:///node_modules/@types/source-map-js/index.d.ts'
           )
         )
 

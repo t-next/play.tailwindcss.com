@@ -1,12 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useIsomorphicLayoutEffect } from '../hooks/useIsomorphicLayoutEffect'
-import Worker from 'worker-loader?publicPath=/_next/&filename=static/chunks/[name].[hash].js&chunkFilename=static/chunks/[id].[contenthash].worker.js!../workers/postcss.worker.js'
+import Worker from 'worker-loader!../workers/postcss.worker.js'
 import { requestResponse } from '../utils/workers'
 import { debounce } from 'debounce'
 import { Editor } from '../components/Editor'
 import SplitPane from 'react-split-pane'
 import useMedia from 'react-use/lib/useMedia'
-import defaultContent from '../preval/defaultContent'
 import { validateJavaScript } from '../utils/validateJavaScript'
 import { useDebouncedState } from '../hooks/useDebouncedState'
 import { Preview } from '../components/Preview'
@@ -21,6 +20,7 @@ import { getLayoutQueryString } from '../utils/getLayoutQueryString'
 import { get } from '../utils/database'
 import { toValidTailwindVersion } from '../utils/toValidTailwindVersion'
 import Head from 'next/head'
+import { getDefaultContent } from '../utils/getDefaultContent'
 
 const HEADER_HEIGHT = 60 - 1
 const TAB_BAR_HEIGHT = 40
@@ -286,11 +286,6 @@ function Pen({
     setActiveTab(initialActiveTab)
   }, [initialActiveTab])
 
-  const isDefaultContent =
-    initialContent.html === defaultContent.html &&
-    initialContent.css === defaultContent.css &&
-    initialContent.config === defaultContent.config
-
   return (
     <>
       <Head>
@@ -406,8 +401,8 @@ function Pen({
                   onLoad={() => {
                     inject({
                       html: initialContent.html,
-                      ...(isDefaultContent
-                        ? { css: defaultContent.compiledCss }
+                      ...(initialContent.compiledCss
+                        ? { css: initialContent.compiledCss }
                         : {}),
                     })
                     compileNow({
@@ -458,7 +453,7 @@ export async function getServerSideProps({ params, res, query }) {
     )
     return {
       props: {
-        initialContent: defaultContent,
+        initialContent: await getDefaultContent(),
         ...layoutProps,
       },
     }
