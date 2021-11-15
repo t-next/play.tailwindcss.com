@@ -91,7 +91,6 @@ function Pen({
 
               const req = newStyles.cssRequest
 
-              debugger
               onChange({
                 html: req.html,
                 css: req.css,
