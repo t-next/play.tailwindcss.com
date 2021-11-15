@@ -72,7 +72,9 @@ addEventListener('message', async (event) => {
       if (match === null) {
         respond({ error: { message: error.message } })
       } else {
-        respond({ error: { message: match[3], file: 'CSS', line: match[1] } })
+        respond({
+          error: { css: css, message: match[3], file: 'CSS', line: match[1] },
+        })
       }
     } else {
       respond({ error: { message: error.message } })
