@@ -115,8 +115,6 @@ function Pen({
       css: content.css,
     }
     window.top.postMessage(payload, '*')
-
-    console.log('result', content.css)
   }, [])
 
   async function compileNow(content) {
@@ -170,6 +168,14 @@ function Pen({
       worker.current.terminate()
     }
   }, [])
+
+  useEffect(() => {
+    if (!error) {
+      return
+    }
+
+    console.error('Tailwind compiler error: ', error)
+  }, [error])
 
   return (
     <>
