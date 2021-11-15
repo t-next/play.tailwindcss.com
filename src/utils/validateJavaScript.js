@@ -20,6 +20,11 @@ export function validateJavaScript(script) {
         },
       })
     })
-    document.body.appendChild($script)
+
+    try {
+      document.body && document.body.appendChild($script)
+    } catch (e) {
+      console.log(e)
+    }
   })
 }

@@ -1,4 +1,3 @@
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 const withTM = require('next-transpile-modules')(['monaco-editor', 'color'])
 const { createLoader } = require('simple-functional-loader')
 const path = require('path')
@@ -34,32 +33,13 @@ const files = [
     pattern: /modern-normalize/,
     file: require.resolve('modern-normalize'),
   },
-  {
-    pattern: /normalize/,
-    file: require.resolve('normalize.css'),
-  },
-  {
-    pattern: /preflight/,
-    tailwindVersion: 1,
-    file: path.resolve(
-      __dirname,
-      'node_modules/tailwindcss-v1/lib/plugins/css/preflight.css'
-    ),
-  },
+
   {
     pattern: /preflight/,
     tailwindVersion: 2,
     file: path.resolve(
       __dirname,
       'node_modules/tailwindcss/lib/plugins/css/preflight.css'
-    ),
-  },
-  {
-    pattern: /preflight/,
-    tailwindVersion: 3,
-    file: path.resolve(
-      __dirname,
-      'node_modules/tailwindcss-v3/lib/css/preflight.css'
     ),
   },
 ]
@@ -122,13 +102,6 @@ module.exports = withTM({
         })
       })
 
-    config.plugins.push(
-      new MonacoWebpackPlugin({
-        languages: ['css', 'typescript', 'javascript', 'html'],
-        filename: 'static/chunks/[name].worker.js',
-      })
-    )
-
     if (!isServer) {
       if (config.externals) {
         config.externals.push(getExternal)
@@ -139,10 +112,7 @@ module.exports = withTM({
 
     config.module.rules.push({
       test: {
-        or: [
-          require.resolve('monaco-editor/esm/vs/language/css/cssWorker.js'),
-          require.resolve('monaco-editor/dev/vs/language/css/cssWorker.js'),
-        ],
+        or: [],
       },
       use: [
         createLoader(function (source) {
@@ -155,18 +125,8 @@ module.exports = withTM({
     })
 
     config.module.rules.push({
-      test: require.resolve('tailwindcss-v1/lib/plugins/preflight.js'),
-      use: [createReadFileReplaceLoader(1)],
-    })
-
-    config.module.rules.push({
       test: /tailwindcss\/lib\/plugins\/preflight\.js/,
       use: [createReadFileReplaceLoader(2)],
-    })
-
-    config.module.rules.push({
-      test: /tailwindcss-v3\/lib\/corePlugins\.js/,
-      use: [createReadFileReplaceLoader(3)],
     })
 
     config.plugins.push(

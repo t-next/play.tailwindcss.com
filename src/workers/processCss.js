@@ -3,12 +3,6 @@ import { VIRTUAL_SOURCE_PATH, VIRTUAL_HTML_FILENAME } from '../constants'
 import extractClasses from './extractClasses'
 
 const deps = {
-  1: [
-    () => import('tailwindcss-v1'),
-    () => import('postcss-v7'),
-    () => import('autoprefixer-postcss7'),
-    () => import('tailwindcss-v1/lib/featureFlags'),
-  ],
   2: [
     () => import('tailwindcss'),
     () => import('postcss'),
@@ -16,19 +10,10 @@ const deps = {
     () => import('tailwindcss/lib/featureFlags'),
     () => import('tailwindcss/resolveConfig'),
   ],
-  3: [
-    () => import('tailwindcss-v3'),
-    () => import('postcss'),
-    () => import('autoprefixer'),
-    () => import('tailwindcss-v3/lib/featureFlags'),
-    () => import('tailwindcss-v3/resolveConfig'),
-  ],
 }
 
-const applyModule1 = require('tailwindcss-v1/lib/flagged/applyComplexClasses')
 const applyModule2 = require('tailwindcss/lib/lib/substituteClassApplyAtRules')
 
-const apply1 = applyModule1.default
 const apply2 = applyModule2.default
 
 export async function processCss(
@@ -67,21 +52,15 @@ export async function processCss(
 
   let jitContext
   if (jit && !skipIntelliSense) {
-    jitContext = require('tailwindcss/lib/jit/lib/setupContextUtils').createContext(
-      resolveConfig(config)
-    )
+    jitContext =
+      require('tailwindcss/lib/jit/lib/setupContextUtils').createContext(
+        resolveConfig(config)
+      )
   }
 
-  const applyComplexClasses =
-    tailwindVersion === '1' ? applyModule1 : applyModule2
+  const applyComplexClasses = applyModule2
 
   applyComplexClasses.default = (config, ...args) => {
-    if (tailwindVersion === '3') {
-      return require('tailwindcss-v3/lib/lib/expandApplyAtRules').default(
-        jitContext
-      )
-    }
-
     if (jit) {
       return require('tailwindcss/lib/jit/lib/expandApplyAtRules').default(
         jitContext
@@ -91,10 +70,7 @@ export async function processCss(
     let configClone = klona(config)
     configClone.separator = separator
 
-    let fn =
-      tailwindVersion === '1'
-        ? apply1(configClone, ...args)
-        : apply2(configClone, ...args)
+    let fn = apply2(configClone, ...args)
 
     return async (css) => {
       css.walkRules((rule) => {
@@ -168,12 +144,7 @@ export async function processCss(
       state.classNames = await extractClasses(lspRoot)
     }
     state.separator = separator
-    state.version =
-      tailwindVersion === '1'
-        ? require('tailwindcss-v1/package.json?fields=version').version
-        : tailwindVersion === '2'
-        ? require('tailwindcss/package.json?fields=version').version
-        : require('tailwindcss-v3/package.json?fields=version').version
+    state.version = require('tailwindcss/package.json?fields=version').version
     state.editor = {
       userLanguages: {},
       capabilities: {},

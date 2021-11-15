@@ -4,17 +4,9 @@ const fs = require('fs').promises
 const { PLUGINS, PLUGIN_BUILDER_VERSION } = require('../constants')
 
 const versions = {
-  v1: {
-    tailwindcss: 'tailwindcss-v1',
-    plugins: PLUGINS[1],
-  },
   v2: {
     tailwindcss: 'tailwindcss',
     plugins: PLUGINS[2],
-  },
-  v3: {
-    tailwindcss: 'tailwindcss-v3',
-    plugins: PLUGINS[3],
   },
 }
 

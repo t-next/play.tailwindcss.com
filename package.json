@@ -2,7 +2,7 @@
   "name": "play.tailwindcss.com",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 8080",
     "build:plugins": "if [ -f './.next/serverless/scripts/buildBuiltinPlugins.js' ]; then node ./.next/serverless/scripts/buildBuiltinPlugins.js; else node ./.next/server/scripts/buildBuiltinPlugins.js; fi",
     "build": "next build && npm run build:plugins",
     "start": "next start"
@@ -40,8 +40,6 @@
     "is-mobile": "^2.2.2",
     "klona": "^2.0.4",
     "line-column": "^1.0.2",
-    "monaco-editor": "^0.20.0",
-    "monaco-editor-webpack-plugin": "^1.9.0",
     "next": "10.0.0",
     "next-transpile-modules": "^4.1.0",
     "p-queue": "^6.6.1",
@@ -59,8 +57,6 @@
     "string-replace-loader": "^2.3.0",
     "tailwindcss": "2.2.15",
     "tailwindcss-language-service": "0.0.22",
-    "tailwindcss-v1": "npm:tailwindcss@1.9.6",
-    "tailwindcss-v3": "npm:tailwindcss@3.0.0-alpha.2",
     "vscode-languageserver-textdocument": "^1.0.1",
     "worker-loader": "^3.0.2"
   }
