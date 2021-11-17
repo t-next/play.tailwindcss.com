@@ -9,6 +9,8 @@ let current
 let tailwindVersion = '2'
 
 addEventListener('message', async (event) => {
+  const startTime = Date.now()
+
   if (event.data._current) {
     current = event.data._current
     return
@@ -65,7 +67,17 @@ addEventListener('message', async (event) => {
       tailwindVersion,
       event.data.skipIntelliSense
     )
-    respond({ state, css: compiledCss, html: compiledHtml, jit, buildId })
+
+    console.log('Compile time:', Date.now() - startTime, { jit })
+
+    respond({
+      state,
+      css: compiledCss,
+      html: compiledHtml,
+      jit,
+      buildId,
+      compileTime: Date.now() - startTime,
+    })
   } catch (error) {
     if (error.toString().startsWith('CssSyntaxError')) {
       const match = error.message.match(/^.*?:([0-9]+):([0-9]+): (.*?)$/)

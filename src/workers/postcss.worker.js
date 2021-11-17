@@ -97,29 +97,33 @@ addEventListener('message', async (event) => {
           }
         }
       }
-      state.variants = getVariants(state)
-      state.screens = isObject(state.config.screens)
-        ? Object.keys(state.config.screens)
-        : []
-      state.editor.getConfiguration = () => ({
-        editor: {
-          tabSize: 2,
-        },
-        tailwindCSS: {
-          validate: true,
-          classAttributes: ['class'],
-          lint: {
-            cssConflict: 'warning',
-            invalidApply: 'error',
-            invalidScreen: 'error',
-            invalidVariant: 'error',
-            invalidConfigPath: 'error',
-            invalidTailwindDirective: 'error',
-            recommendedVariantOrder: 'warning',
+
+      if (state) {
+        state.variants = getVariants(state || {})
+        state.screens = isObject(state.config.screens)
+          ? Object.keys(state.config.screens)
+          : []
+        state.editor.getConfiguration = () => ({
+          editor: {
+            tabSize: 2,
           },
-        },
-      })
-      state.enabled = true
+          tailwindCSS: {
+            validate: true,
+            classAttributes: ['class'],
+            lint: {
+              cssConflict: 'warning',
+              invalidApply: 'error',
+              invalidScreen: 'error',
+              invalidVariant: 'error',
+              invalidConfigPath: 'error',
+              invalidTailwindDirective: 'error',
+              recommendedVariantOrder: 'warning',
+            },
+          },
+        })
+        state.enabled = true
+      }
+
       postMessage({
         _id: event.data._id,
         css: result.css,

@@ -95,7 +95,7 @@ function Pen({
                 html: req.html,
                 css: req.css,
                 config: req.config,
-                skipIntelliSense: false,
+                skipIntelliSense: true,
                 tailwindVersion: toValidTailwindVersion('2'),
               })
             }
@@ -146,7 +146,7 @@ function Pen({
     }
   }
 
-  const compile = useCallback(debounce(compileNow, 200), [])
+  const compile = useCallback(debounce(compileNow, 1), [])
 
   const onChange = useCallback(
     (content) => {
@@ -155,7 +155,7 @@ function Pen({
         html: content.html,
         css: content.css,
         config: content.config,
-        skipIntelliSense: false,
+        skipIntelliSense: true,
         tailwindVersion,
       })
     },
@@ -189,63 +189,4 @@ export default function App({ errorCode, ...props }) {
     return <Error statusCode={errorCode} />
   }
   return <Pen {...props} />
-}
-
-export async function getServerSideProps({ params, res, query }) {
-  const layoutProps = {}
-
-  console.log(params.slug)
-
-  if (
-    !params.slug ||
-    (params.slug.length === 1 && params.slug[0] === 'index')
-  ) {
-    res.setHeader(
-      'cache-control',
-      'public, max-age=0, must-revalidate, s-maxage=31536000'
-    )
-    return {
-      props: {
-        initialContent: '',
-        ...layoutProps,
-      },
-    }
-  }
-
-  if (params.slug.length !== 1) {
-    return {
-      props: {
-        errorCode: 404,
-      },
-    }
-  }
-
-  try {
-    const { Item: initialContent } = await get({
-      ID: params.slug[0],
-    })
-
-    res.setHeader(
-      'cache-control',
-      'public, max-age=0, must-revalidate, s-maxage=31536000'
-    )
-
-    return {
-      props: {
-        initialContent,
-        initialPath: `/${initialContent.ID}${getLayoutQueryString({
-          layout: query.layout,
-          responsiveSize: query.size,
-          file: query.file,
-        })}`,
-        ...layoutProps,
-      },
-    }
-  } catch (error) {
-    return {
-      props: {
-        errorCode: error.status || 500,
-      },
-    }
-  }
 }
