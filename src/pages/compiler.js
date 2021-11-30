@@ -59,19 +59,6 @@ function Pen({
     tailwindVersion,
   ])
 
-  useEffect(() => {
-    if (dirty) {
-      function handleUnload(e) {
-        e.preventDefault()
-        e.returnValue = ''
-      }
-      window.addEventListener('beforeunload', handleUnload)
-      return () => {
-        window.removeEventListener('beforeunload', handleUnload)
-      }
-    }
-  }, [dirty])
-
   const [styles, setStyles] = useState({})
 
   useEffect(() => {
@@ -177,11 +164,7 @@ function Pen({
     console.error('Tailwind compiler error: ', error)
   }, [error])
 
-  return (
-    <>
-      <div>Test</div>
-    </>
-  )
+  return <>Compiler</>
 }
 
 export default function App({ errorCode, ...props }) {

@@ -41,13 +41,13 @@ addEventListener('message', async (event) => {
 
   let configOrError = await parseConfig(config, tailwindVersion)
 
-  if (configOrError._error) {
+  if (!configOrError || (configOrError && configOrError._error)) {
     return respond({
       error: {
-        message: configOrError._error.message,
+        message: configOrError ? configOrError._error.message : 'Error',
         file: 'Config',
         line:
-          typeof configOrError._error.line === 'undefined'
+          typeof !configOrError || configOrError._error.line === 'undefined'
             ? undefined
             : configOrError._error.line,
       },
