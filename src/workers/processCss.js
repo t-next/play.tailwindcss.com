@@ -4,6 +4,13 @@ import extractClasses from './extractClasses'
 
 const deps = {
   2: [
+    () => import('tailwindcss-v2'),
+    () => import('postcss'),
+    () => import('autoprefixer'),
+    () => import('tailwindcss-v2/lib/featureFlags'),
+    () => import('tailwindcss-v2/resolveConfig'),
+  ],
+  3: [
     () => import('tailwindcss'),
     () => import('postcss'),
     () => import('autoprefixer'),
@@ -12,8 +19,7 @@ const deps = {
   ],
 }
 
-const applyModule2 = require('tailwindcss/lib/lib/substituteClassApplyAtRules')
-
+const applyModule2 = require('tailwindcss-v2/lib/lib/substituteClassApplyAtRules')
 const apply2 = applyModule2.default
 
 export async function processCss(
@@ -53,16 +59,23 @@ export async function processCss(
   let jitContext
   if (jit && !skipIntelliSense) {
     jitContext =
-      require('tailwindcss/lib/jit/lib/setupContextUtils').createContext(
+      require('tailwindcss-v2/lib/jit/lib/setupContextUtils').createContext(
         resolveConfig(config)
       )
   }
 
-  const applyComplexClasses = applyModule2
+  const applyComplexClasses =
+    tailwindVersion === '1' ? applyModule1 : applyModule2
 
   applyComplexClasses.default = (config, ...args) => {
+    if (tailwindVersion === '3') {
+      return require('tailwindcss/lib/lib/expandApplyAtRules').default(
+        jitContext
+      )
+    }
+
     if (jit) {
-      return require('tailwindcss/lib/jit/lib/expandApplyAtRules').default(
+      return require('tailwindcss-v2/lib/jit/lib/expandApplyAtRules').default(
         jitContext
       )
     }
@@ -144,7 +157,10 @@ export async function processCss(
       state.classNames = await extractClasses(lspRoot)
     }
     state.separator = separator
-    state.version = require('tailwindcss/package.json?fields=version').version
+    state.version =
+      tailwindVersion === '2'
+        ? require('tailwindcss-v2/package.json?fields=version').version
+        : require('tailwindcss/package.json?fields=version').version
     state.editor = {
       userLanguages: {},
       capabilities: {},

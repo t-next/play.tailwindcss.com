@@ -1,16 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import Worker from 'worker-loader?publicPath=/_next/&filename=static/chunks/[name].[hash].js&chunkFilename=static/chunks/[id].[contenthash].worker.js!../workers/postcss.worker.js'
+import Worker from 'worker-loader!../workers/postcss.worker.js'
 import { requestResponse } from '../utils/workers'
 import { debounce } from 'debounce'
 import useMedia from 'react-use/lib/useMedia'
 import { validateJavaScript } from '../utils/validateJavaScript'
 import { useDebouncedState } from '../hooks/useDebouncedState'
+import Error from 'next/error'
 import { toValidTailwindVersion } from '../utils/toValidTailwindVersion'
-import Head from 'next/head'
 
-const HEADER_HEIGHT = 60 - 1
-const TAB_BAR_HEIGHT = 40
-const RESIZER_SIZE = 1
 const DEFAULT_RESPONSIVE_SIZE = { width: 540, height: 720 }
 
 function Pen({
@@ -44,7 +41,7 @@ function Pen({
   const [responsiveSize, setResponsiveSize] = useState(
     initialResponsiveSize || DEFAULT_RESPONSIVE_SIZE
   )
-  const [tailwindVersion, setTailwindVersion] = useState('2')
+  const [tailwindVersion, setTailwindVersion] = useState('3')
 
   const [jit, setJit] = useState(true)
 
@@ -83,7 +80,9 @@ function Pen({
                 css: req.css,
                 config: req.config,
                 skipIntelliSense: true,
-                tailwindVersion: toValidTailwindVersion('2'),
+                tailwindVersion: toValidTailwindVersion(
+                  req.tailwindVersion ? req.tailwindVersion : '3'
+                ),
               })
             }
           }
@@ -143,7 +142,7 @@ function Pen({
         css: content.css,
         config: content.config,
         skipIntelliSense: true,
-        tailwindVersion,
+        tailwindVersion: content.tailwindVersion,
       })
     },
     [inject, compile, jit, tailwindVersion]

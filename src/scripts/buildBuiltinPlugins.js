@@ -5,8 +5,12 @@ const { PLUGINS, PLUGIN_BUILDER_VERSION } = require('../constants')
 
 const versions = {
   v2: {
-    tailwindcss: 'tailwindcss',
+    tailwindcss: 'tailwindcss-v2',
     plugins: PLUGINS[2],
+  },
+  v3: {
+    tailwindcss: 'tailwindcss',
+    plugins: PLUGINS[3],
   },
 }
 

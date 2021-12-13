@@ -1,4 +1,3 @@
-const withTM = require('next-transpile-modules')(['monaco-editor', 'color'])
 const { createLoader } = require('simple-functional-loader')
 const path = require('path')
 const fs = require('fs')
@@ -21,7 +20,7 @@ const moduleOverrides = {
   'fast-glob': path.resolve(__dirname, 'src/modules/fast-glob.js'),
 }
 
-function getExternal(context, request, callback) {
+function getExternal({ context, request }, callback) {
   if (/node_modules/.test(context) && externals[request]) {
     return callback(null, externals[request])
   }
@@ -39,7 +38,15 @@ const files = [
     tailwindVersion: 2,
     file: path.resolve(
       __dirname,
-      'node_modules/tailwindcss/lib/plugins/css/preflight.css'
+      'node_modules/tailwindcss-v2/lib/plugins/css/preflight.css'
+    ),
+  },
+  {
+    pattern: /preflight/,
+    tailwindVersion: 3,
+    file: path.resolve(
+      __dirname,
+      'node_modules/tailwindcss/lib/css/preflight.css'
     ),
   },
 ]
@@ -65,7 +72,7 @@ function createReadFileReplaceLoader(tailwindVersion) {
   })
 }
 
-module.exports = withTM({
+module.exports = {
   async headers() {
     return [
       {
@@ -90,8 +97,9 @@ module.exports = withTM({
             r.issuer &&
             r.issuer.and &&
             r.issuer.and.length === 1 &&
-            r.issuer.and[0] ===
-              require('path').resolve(process.cwd(), 'src/pages/_app.js')
+            r.issuer.and[0].source &&
+            r.issuer.and[0].source.replace(/\\/g, '') ===
+              path.resolve(process.cwd(), 'src/pages/_app')
           ) {
             r.issuer.or = [
               ...r.issuer.and,
@@ -125,8 +133,13 @@ module.exports = withTM({
     })
 
     config.module.rules.push({
-      test: /tailwindcss\/lib\/plugins\/preflight\.js/,
+      test: /tailwindcss-v2\/lib\/plugins\/preflight\.js/,
       use: [createReadFileReplaceLoader(2)],
+    })
+
+    config.module.rules.push({
+      test: /tailwindcss\/lib\/corePlugins\.js/,
+      use: [createReadFileReplaceLoader(3)],
     })
 
     config.plugins.push(
@@ -158,28 +171,6 @@ module.exports = withTM({
 
         return res
       }),
-    })
-
-    // mock `fileURLToPath` and `pathToFileURL` functions
-    // from the `url` module
-    config.module.rules.push({
-      test: {
-        or: [
-          require.resolve('postcss/lib/input.js'),
-          require.resolve('postcss/lib/map-generator.js'),
-        ],
-      },
-      use: [
-        createLoader(function (source) {
-          return source.replace(
-            /let {\s*([^}]+)\s*} = require\('url'\)/,
-            (_, names) =>
-              names
-                .split(/\s*,\s*/)
-                .reduce((acc, cur) => `${acc}let ${cur} = x => x;`, '')
-          )
-        }),
-      ],
     })
 
     let browsers = require('browserslist')([
@@ -255,7 +246,7 @@ module.exports = withTM({
 
       config.entry = async () => {
         const entries = { ...(await originalEntry()) }
-        entries['./scripts/buildBuiltinPlugins'] =
+        entries['scripts/buildBuiltinPlugins'] =
           './src/scripts/buildBuiltinPlugins.js'
         return entries
       }
@@ -263,4 +254,4 @@ module.exports = withTM({
 
     return config
   },
-})
+}

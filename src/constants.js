@@ -1,7 +1,5 @@
 let plugins = {
   '@tailwindcss/custom-forms': require('@tailwindcss/custom-forms/package.json?fields=version,main'),
-  '@tailwindcss/aspect-ratio': require('@tailwindcss/aspect-ratio/package.json?fields=version,main'),
-  '@tailwindcss/line-clamp': require('@tailwindcss/line-clamp/package.json?fields=version,main'),
   '@tailwindcss/forms': require('@tailwindcss/forms/package.json?fields=version,main'),
   '@tailwindcss/typography': require('@tailwindcss/typography/package.json?fields=version,main'),
   '@tailwindcss/ui': require('@tailwindcss/ui/package.json?fields=version,main'),
@@ -13,11 +11,17 @@ module.exports = {
   VIRTUAL_HTML_FILENAME: '/htmlInput',
   PLUGINS: {
     1: plugins,
-    2: plugins,
+    2: {
+      ...plugins,
+      '@tailwindcss/aspect-ratio': require('@tailwindcss/aspect-ratio/package.json?fields=version,main'),
+      '@tailwindcss/line-clamp': require('@tailwindcss/line-clamp/package.json?fields=version,main'),
+    },
     3: {
       ...plugins,
       '@tailwindcss/forms': require('@tailwindcss/forms-next/package.json?fields=version,main'),
       '@tailwindcss/typography': require('@tailwindcss/typography-next/package.json?fields=version,main'),
+      '@tailwindcss/line-clamp': require('@tailwindcss/line-clamp-next/package.json?fields=version,main'),
+      '@tailwindcss/aspect-ratio': require('@tailwindcss/aspect-ratio-next/package.json?fields=version,main'),
     },
   },
 }

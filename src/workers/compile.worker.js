@@ -68,7 +68,10 @@ addEventListener('message', async (event) => {
       event.data.skipIntelliSense
     )
 
-    console.log('Compile time:', Date.now() - startTime, { jit })
+    console.log('Compile time:', Date.now() - startTime, {
+      jit,
+      tailwindVersion,
+    })
 
     respond({
       state,

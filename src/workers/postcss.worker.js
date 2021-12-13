@@ -61,11 +61,29 @@ addEventListener('message', async (event) => {
         ] = await Promise.all([
           import('postcss'),
           import('postcss-selector-parser'),
-          import('tailwindcss/lib/jit/lib/generateRules'),
-          import('tailwindcss/lib/jit/lib/setupContextUtils'),
-          import('tailwindcss/lib/jit/lib/expandApplyAtRules'),
-          import('tailwindcss/resolveConfig'),
-          import('tailwindcss/lib/jit/lib/setupTrackingContext'),
+          result.state.jit
+            ? tailwindVersion === '2'
+              ? import('tailwindcss-v2/lib/jit/lib/generateRules')
+              : import('tailwindcss/lib/lib/generateRules')
+            : {},
+          result.state.jit
+            ? tailwindVersion === '2'
+              ? import('tailwindcss-v2/lib/jit/lib/setupContextUtils')
+              : import('tailwindcss/lib/lib/setupContextUtils')
+            : {},
+          result.state.jit
+            ? tailwindVersion === '2'
+              ? import('tailwindcss-v2/lib/jit/lib/expandApplyAtRules')
+              : import('tailwindcss/lib/lib/expandApplyAtRules')
+            : {},
+          tailwindVersion === '2'
+            ? import('tailwindcss-v2/resolveConfig')
+            : import('tailwindcss/resolveConfig'),
+          result.state.jit
+            ? tailwindVersion === '2'
+              ? import('tailwindcss-v2/lib/jit/lib/setupTrackingContext')
+              : import('tailwindcss/lib/lib/setupTrackingContext')
+            : {},
         ])
 
         state = result.state
@@ -97,7 +115,6 @@ addEventListener('message', async (event) => {
           }
         }
       }
-
       if (state) {
         state.variants = getVariants(state || {})
         state.screens = isObject(state.config.screens)
@@ -123,7 +140,6 @@ addEventListener('message', async (event) => {
         })
         state.enabled = true
       }
-
       postMessage({
         _id: event.data._id,
         css: result.css,
