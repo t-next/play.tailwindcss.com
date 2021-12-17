@@ -94,11 +94,12 @@ function Pen({
 
   const inject = useCallback((content) => {
     // previewRef.current.contentWindow.postMessage(content, '*')
-    setResult(content.css)
+    !content.error && setResult(content.css)
 
     const payload = {
-      type: 'updateCss',
+      type: content.error ? 'cssCompilerError' : 'updateCss',
       css: content.css,
+      error: content.error,
     }
     window.top.postMessage(payload, '*')
   }, [])
@@ -118,11 +119,13 @@ function Pen({
     )
 
     if (canceled) {
+      inject({ error })
       return
     }
     setIsLoadingImmediate(false)
     if (error) {
       setError(error)
+      inject({ error })
       return
     }
     setErrorImmediate()
