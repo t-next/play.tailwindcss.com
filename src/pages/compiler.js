@@ -61,9 +61,7 @@ function Pen({
   useEffect(() => {
     window.addEventListener(
       'message',
-      (event) => {
-        // send a message back
-        // event.ports[0].postMessage("Message back from the iframe");
+      async (event) => {
         if (event && event.data) {
           if (event.data.name === 'styles') {
             let newStyles = event.data.styles
@@ -75,22 +73,37 @@ function Pen({
 
               const req = newStyles.cssRequest
 
+              console.log('compile css', req)
+
               onChange({
                 html: req.html,
                 css: req.css,
                 config: req.config,
-                skipIntelliSense: true,
+                skipIntelliSense: req.skipIntelliSense,
                 tailwindVersion: toValidTailwindVersion(
                   req.tailwindVersion ? req.tailwindVersion : '3'
                 ),
               })
             }
           }
+
+          if (event.data.name === 'lsprequest') {
+            let result = await requestResponse(worker.current, event.data.lsp)
+
+            window.top.postMessage(
+              {
+                type: 'lspresponse',
+                _id: event.data._id,
+                data: result,
+              },
+              '*'
+            )
+          }
         }
       },
       false
     )
-  })
+  }, [])
 
   const inject = useCallback((content) => {
     // previewRef.current.contentWindow.postMessage(content, '*')
@@ -144,7 +157,7 @@ function Pen({
         html: content.html,
         css: content.css,
         config: content.config,
-        skipIntelliSense: true,
+        skipIntelliSense: content.skipIntelliSense,
         tailwindVersion: content.tailwindVersion,
       })
     },

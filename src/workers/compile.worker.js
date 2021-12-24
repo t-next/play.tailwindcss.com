@@ -71,6 +71,7 @@ addEventListener('message', async (event) => {
     console.log('Compile time:', Date.now() - startTime, {
       jit,
       tailwindVersion,
+      skipIntelliSense: event.data.skipIntelliSense,
     })
 
     respond({

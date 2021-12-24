@@ -1,6 +1,25 @@
-import { getColor } from 'tailwindcss-language-service'
-
-import CompileWorker from 'worker-loader?publicPath=/_next/&filename=static/chunks/[name].[hash].js&chunkFilename=static/chunks/[id].[contenthash].worker.js!./compile.worker.js'
+import { TextDocument } from 'vscode-languageserver-textdocument'
+import {
+  doComplete,
+  resolveCompletionItem,
+  doValidate,
+  doHover,
+  getDocumentColors,
+  completionsFromClassList,
+  getColor,
+} from 'tailwindcss-language-service'
+import {
+  asCompletionResult as asMonacoCompletionResult,
+  asCompletionItem as asMonacoCompletionItem,
+  asDiagnostics as asMonacoDiagnostics,
+  asHover as asMonacoHover,
+  asRange as asMonacoRange,
+} from '../monaco/lspToMonaco'
+import {
+  asCompletionItem as asLspCompletionItem,
+  asRange as asLspRange,
+} from '../monaco/monacoToLsp'
+import CompileWorker from 'worker-loader!./compile.worker.js'
 import { createWorkerQueue } from '../utils/workers'
 import './subworkers'
 import { getVariants } from '../utils/getVariants'
@@ -17,8 +36,98 @@ let lastCss
 let lastConfig
 
 addEventListener('message', async (event) => {
-  if (event === undefined || !event.data) {
-    return
+  if (event.data.lsp) {
+    let result
+    function fallback(fn, fallbackValue) {
+      if (!state || !state.enabled) return fallbackValue
+      return fn()
+    }
+
+    const document = TextDocument.create(
+      event.data.lsp.uri,
+      event.data.lsp.language,
+      1,
+      event.data.lsp.text
+    )
+
+    switch (event.data.lsp.type) {
+      case 'complete':
+        result = await fallback(
+          async () =>
+            asMonacoCompletionResult(
+              await doComplete(
+                state,
+                document,
+                {
+                  line: event.data.lsp.position.lineNumber - 1,
+                  character: event.data.lsp.position.column - 1,
+                },
+                event.data.lsp.context
+              )
+            ),
+          []
+        )
+        break
+      case 'completeString':
+        result = fallback(() =>
+          asMonacoCompletionResult(
+            completionsFromClassList(
+              state,
+              document.getText(),
+              asLspRange(event.data.lsp.range)
+            )
+          )
+        )
+        break
+      case 'resolveCompletionItem':
+        result = await fallback(async () => {
+          let item = await resolveCompletionItem(
+            state,
+            asLspCompletionItem(event.data.lsp.item)
+          )
+          if (item.documentation?.value) {
+            item.documentation.value = item.documentation.value.replace(
+              /^```css/,
+              '```tailwindcss'
+            )
+          }
+          return asMonacoCompletionItem(item)
+        })
+        break
+      case 'hover':
+        result = await fallback(async () => {
+          const hover = await doHover(state, document, {
+            line: event.data.lsp.position.lineNumber - 1,
+            character: event.data.lsp.position.column - 1,
+          })
+          if (hover && hover.contents.language === 'css') {
+            hover.contents.language = 'tailwindcss'
+          }
+          return asMonacoHover(hover)
+        })
+        break
+      case 'validate':
+        result = await fallback(
+          async () => asMonacoDiagnostics(await doValidate(state, document)),
+          []
+        )
+        break
+      case 'documentColors':
+        result = await fallback(
+          async () =>
+            (
+              await getDocumentColors(state, document)
+            ).map(({ color, range }) => ({
+              range: asMonacoRange(range),
+              color,
+            })),
+          []
+        )
+        break
+    }
+
+    console.log('LSP RESPONSE 3 ' + event.data._id, result)
+    return postMessage({ _id: event.data._id, result })
   }
 
   if (
@@ -78,7 +187,9 @@ addEventListener('message', async (event) => {
             : {},
           tailwindVersion === '2'
             ? import('tailwindcss-v2/resolveConfig')
-            : import('tailwindcss/resolveConfig'),
+            : tailwindVersion === '3'
+            ? import('tailwindcss/resolveConfig')
+            : import('tailwindcss-v1/resolveConfig'),
           result.state.jit
             ? tailwindVersion === '2'
               ? import('tailwindcss-v2/lib/jit/lib/setupTrackingContext')
@@ -109,37 +220,36 @@ addEventListener('message', async (event) => {
           if (state.jitContext.getClassList) {
             state.classList = state.jitContext
               .getClassList()
+              .filter((className) => className !== '*')
               .map((className) => {
                 return [className, { color: getColor(state, className) }]
               })
           }
         }
       }
-      if (state) {
-        state.variants = getVariants(state || {})
-        state.screens = isObject(state.config.screens)
-          ? Object.keys(state.config.screens)
-          : []
-        state.editor.getConfiguration = () => ({
-          editor: {
-            tabSize: 2,
+      state.variants = getVariants(state)
+      state.screens = isObject(state.config.screens)
+        ? Object.keys(state.config.screens)
+        : []
+      state.editor.getConfiguration = () => ({
+        editor: {
+          tabSize: 2,
+        },
+        tailwindCSS: {
+          validate: true,
+          classAttributes: ['class'],
+          lint: {
+            cssConflict: 'warning',
+            invalidApply: 'error',
+            invalidScreen: 'error',
+            invalidVariant: 'error',
+            invalidConfigPath: 'error',
+            invalidTailwindDirective: 'error',
+            recommendedVariantOrder: 'warning',
           },
-          tailwindCSS: {
-            validate: true,
-            classAttributes: ['class'],
-            lint: {
-              cssConflict: 'warning',
-              invalidApply: 'error',
-              invalidScreen: 'error',
-              invalidVariant: 'error',
-              invalidConfigPath: 'error',
-              invalidTailwindDirective: 'error',
-              recommendedVariantOrder: 'warning',
-            },
-          },
-        })
-        state.enabled = true
-      }
+        },
+      })
+      state.enabled = true
       postMessage({
         _id: event.data._id,
         css: result.css,
